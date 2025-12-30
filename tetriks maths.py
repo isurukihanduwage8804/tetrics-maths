@@ -1,48 +1,48 @@
 import streamlit as st
 import streamlit.components.v1 as components
 
+# පිටුවේ සැකසුම්
 st.set_page_config(page_title="Big Math Tetris", layout="centered")
 
-st.title("🔢 Math Tetris (Large View) 🔊")
-st.info("⚠️ **වැදගත්:** Arrow Keys වැඩ කිරීමට සහ සද්දය ඇසීමට කළු පාට Game Area එක මත එක පාරක් Click කරන්න.")
+st.title("🔢 Math Tetris (Big & Sound) 🔊")
+st.info("💡 **උපදෙස්:** ක්‍රීඩාව ඇරඹීමට පහත කළු තිරය මත එක පාරක් Click කරන්න. ඉන්පසු Arrow Keys පාවිච්චි කරන්න.")
 
-# මම මෙතන canvas එකේ width=400 සහ height=600 දක්වා වැඩි කළා
+# HTML සහ JavaScript කොටස
 math_tetris_html = """
-<div id="game-container" style="text-align: center; font-family: 'Segoe UI', Arial, sans-serif; color: white; background: #222; padding: 30px; border-radius: 20px;">
-    <canvas id="tetris" width="400" height="600" style="border: 6px solid #555; background-color: #000; border-radius: 10px;"></canvas>
-    <div style="margin-top: 20px; font-size: 35px; font-weight: bold;">Score: <span id="score" style="color: #0DFF72;">0</span></div>
+<div id="game-container" style="text-align: center; font-family: sans-serif; color: white; background: #1e1e1e; padding: 20px; border-radius: 20px;">
+    <canvas id="tetris" width="400" height="600" style="border: 5px solid #444; background-color: #000; border-radius: 10px;"></canvas>
+    <div style="margin-top: 15px; font-size: 32px; font-weight: bold;">Score: <span id="score" style="color: #0DFF72;">0</span></div>
 </div>
 
 <script>
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
 function playTone(freq, type, duration) {
-    const oscillator = audioCtx.createOscillator();
-    const gainNode = audioCtx.createGain();
-    oscillator.type = type;
-    oscillator.frequency.setValueAtTime(freq, audioCtx.currentTime);
-    gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
-    gainNode.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
-    oscillator.connect(gainNode);
-    gainNode.connect(audioCtx.destination);
-    oscillator.start();
-    oscillator.stop(audioCtx.currentTime + duration);
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = type;
+    osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+    gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    osc.start();
+    osc.stop(audioCtx.currentTime + duration);
 }
 
-const moveSound = () => playTone(150, 'sine', 0.1);
-const rotateSound = () => playTone(300, 'square', 0.05);
-const clearSound = () => {
-    playTone(523.25, 'triangle', 0.2);
-    setTimeout(() => playTone(659.25, 'triangle', 0.2), 100);
-    setTimeout(() => playTone(783.99, 'triangle', 0.4), 200);
+const moveSnd = () => playTone(150, 'sine', 0.1);
+const rotateSnd = () => playTone(300, 'square', 0.05);
+const clearSnd = () => {
+    playTone(523, 'triangle', 0.2);
+    setTimeout(() => playTone(659, 'triangle', 0.2), 100);
+    setTimeout(() => playTone(783, 'triangle', 0.4), 200);
 };
 
 const canvas = document.getElementById('tetris');
 const context = canvas.getContext('2d');
 const scoreElement = document.getElementById('score');
 
-// Scale එක 33 දක්වා වැඩි කළා (මුලින් තිබුණේ 20)
-context.scale(33, 33);
+context.scale(33.3, 33.3);
 
 function arenaSweep() {
     let rowScore = 0;
@@ -57,8 +57,8 @@ function arenaSweep() {
     }
     if (rowScore > 0) {
         player.score += rowScore;
-        updateScore();
-        clearSound();
+        scoreElement.innerText = player.score;
+        clearSnd();
     }
 }
 
@@ -73,14 +73,14 @@ function collide(arena, player) {
 }
 
 function createPiece(type) {
-    const num = Math.floor(Math.random() * 9) + 1;
-    if (type === 'I') return [[0, num, 0, 0], [0, num, 0, 0], [0, num, 0, 0], [0, num, 0, 0]];
-    if (type === 'L') return [[0, num, 0], [0, num, 0], [0, num, num]];
-    if (type === 'J') return [[0, num, 0], [0, num, 0], [num, num, 0]];
-    if (type === 'O') return [[num, num], [num, num]];
-    if (type === 'Z') return [[num, num, 0], [0, num, num], [0, 0, 0]];
-    if (type === 'S') return [[0, num, num], [num, num, 0], [0, 0, 0]];
-    if (type === 'T') return [[0, num, 0], [num, num, num], [0, 0, 0]];
+    const n = Math.floor(Math.random() * 9) + 1;
+    if (type === 'I') return [[0,n,0,0],[0,n,0,0],[0,n,0,0],[0,n,0,0]];
+    if (type === 'L') return [[0,n,0],[0,n,0],[0,n,n]];
+    if (type === 'J') return [[0,n,0],[0,n,0],[n,n,0]];
+    if (type === 'O') return [[n,n],[n,n]];
+    if (type === 'Z') return [[n,n,0],[0,n,n],[0,0,0]];
+    if (type === 'S') return [[0,n,n],[n,n,0],[0,0,0]];
+    if (type === 'T') return [[0,n,0],[n,n,n],[0,0,0]];
 }
 
 function drawMatrix(matrix, offset) {
@@ -89,8 +89,6 @@ function drawMatrix(matrix, offset) {
             if (value !== 0) {
                 context.fillStyle = colors[value % 8 || 1];
                 context.fillRect(x + offset.x, y + offset.y, 1, 1);
-                
-                // කොටු ලොකු නිසා අකුරු වල ප්‍රමාණයත් වැඩි කළා
                 context.fillStyle = 'white';
                 context.font = '0.6px Arial';
                 context.fillText(value, x + offset.x + 0.3, y + offset.y + 0.75);
@@ -128,7 +126,7 @@ function playerDrop() {
 function playerMove(dir) {
     player.pos.x += dir;
     if (collide(arena, player)) player.pos.x -= dir;
-    else moveSound();
+    else moveSnd();
 }
 
 function rotate(matrix, dir) {
@@ -151,57 +149,49 @@ function playerRotate(dir) {
             return;
         }
     }
-    rotateSound();
+    rotateSnd();
 }
 
 function playerReset() {
-    const pieces = 'ILJOTSZ';
-    player.matrix = createPiece(pieces[pieces.length * Math.random() | 0]);
+    const p = 'ILJOTSZ';
+    player.matrix = createPiece(p[p.length * Math.random() | 0]);
     player.pos.y = 0;
     player.pos.x = (arena[0].length / 2 | 0) - (player.matrix[0].length / 2 | 0);
     if (collide(arena, player)) {
         arena.forEach(row => row.fill(0));
         player.score = 0;
-        updateScore();
+        scoreElement.innerText = 0;
     }
 }
 
 let dropCounter = 0;
-let dropInterval = 1000;
 let lastTime = 0;
-
 function update(time = 0) {
-    const deltaTime = time - lastTime;
+    const dt = time - lastTime;
     lastTime = time;
-    dropCounter += deltaTime;
-    if (dropCounter > dropInterval) playerDrop();
+    dropCounter += dt;
+    if (dropCounter > 1000) playerDrop();
     draw();
     requestAnimationFrame(update);
 }
 
-function updateScore() {
-    scoreElement.innerText = player.score;
-}
-
 const colors = [null, '#FF0D72', '#0DC2FF', '#0DFF72', '#F538FF', '#FF8E0D', '#FFE138', '#3877FF'];
-// පේළි ගණන 18 සහ තීරු ගණන 12 ලෙස සකස් කළා ලොකු පෙනුමට ගැළපෙන්න
 const arena = Array.from({length: 18}, () => new Array(12).fill(0));
 const player = { pos: {x: 0, y: 0}, matrix: null, score: 0 };
 
-window.addEventListener('keydown', event => {
+window.addEventListener('keydown', e => {
     if (audioCtx.state === 'suspended') audioCtx.resume();
-    if([37, 38, 39, 40].includes(event.keyCode)) event.preventDefault();
-    if (event.keyCode === 37) playerMove(-1);
-    else if (event.keyCode === 39) playerMove(1);
-    else if (event.keyCode === 40) playerDrop();
-    else if (event.keyCode === 38) playerRotate(1);
+    if([37, 38, 39, 40].includes(e.keyCode)) e.preventDefault();
+    if (e.keyCode === 37) playerMove(-1);
+    else if (e.keyCode === 39) playerMove(1);
+    else if (e.keyCode === 40) playerDrop();
+    else if (e.keyCode === 38) playerRotate(1);
 });
 
 playerReset();
-updateScore();
 update();
 </script>
 """
 
-# height එක 800 දක්වා වැඩි කළා ලොකු Interface එක පෙන්වන්න
-components.html(math_tetris_html, height
+# මෙතන height එක 800 දක්වා වැඩි කළා ලොකු පෙනුම සඳහා
+components.html(math_tetris_html, height=800)
